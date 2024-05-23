@@ -22,10 +22,10 @@ import java.util.concurrent.TimeUnit;
 
 public class CrptApi implements Closeable {
     private static final String CRPT_URL = "https://ismp.crpt.ru/api/v3/lk/documents/create";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final RateLimiter rateLimiter;
     private final CloseableHttpClient httpClient;
-    private final ObjectMapper objectMapper;
 
     public CrptApi(TimeUnit timeUnit, int requestLimit) {
         if (timeUnit == TimeUnit.NANOSECONDS || timeUnit == TimeUnit.MICROSECONDS || timeUnit == TimeUnit.MILLISECONDS) {
@@ -38,7 +38,6 @@ public class CrptApi implements Closeable {
 
         this.rateLimiter = new RateLimiter(timeUnit, requestLimit);
         this.httpClient = HttpClients.createDefault();
-        this.objectMapper = new ObjectMapper();
     }
 
     public String sendDocument(Document document, String signature) throws InterruptedException {
@@ -66,7 +65,7 @@ public class CrptApi implements Closeable {
 
     private String documentToJson(Document document) {
         try {
-            return objectMapper.writeValueAsString(document);
+            return OBJECT_MAPPER.writeValueAsString(document);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Invalid document", e);
         }
